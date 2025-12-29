@@ -1,0 +1,2 @@
+# Finny
+Smart Finance Tracker
