@@ -2,6 +2,7 @@
 Finny - Smart Finance Tracker
 A CLI tool to track expenses and predict spending patterns
 """
+import csv
 CATEGORIES = ["Food", "Transport", "Fun", "Bills", "Shopping", "Health", "Other"] 
 expenses = []   
 """Default categories"""
@@ -31,7 +32,7 @@ def add_categories():
     else:
         CATEGORIES.append(new_category)
         print(f"Category '{new_category}' added successfully.")
-        
+
 def add_expense():
     """For user to add expense"""
     print("\nAdd New Expense")
@@ -82,6 +83,40 @@ def show_expenses():
     
     return
 
+def load_expenses():
+    '''Displays all expenses in a tabular format'''
+    if not expenses:
+        print("No expenses recorded yet. Use 'add expense' to add new expenses.")
+        return
+    print("\nYour Expenses:")
+    print(f"{'Date':<12} {'Name':<12} {'Category':<12} {'Amount':>10}")
+    total = 0
+    for expense in expenses:
+        print(f"{expense['date']:<12} {expense['name']:<12} {expense['category']:<12} ₹{expense['amount']:>10.2f}")
+        total += expense['amount']
+    print("-" * 62)
+    print(f"\nTotal Expenses: ₹{total:>.2f}")
+    
+    return
+
+def save_expenses():
+    """Auto save expenses to a CSV file after user exits"""
+    try:
+        with open("expenses.csv", "w", newline="") as file:
+            writer=csv.writer(file)
+            writer.writerow(["Date", "Name", "Category", "Amount"])#header row
+            for expense in expenses:
+                writer.writerow([
+                    expense["date"],
+                    expense["name"],
+                    expense["category"],
+                    expense["amount"]
+                ])
+        print(f"Saved {len(expenses)} expenses to file")
+    except Exception as e:
+        print(f"Error saving expenses: {e}")
+
+
 def remove_categories(): 
     """ Allows user to remove existing category"""
     show_categories()
@@ -111,6 +146,7 @@ def main():
     while True:
         command = input("\nWhat would you like to do? (Enter help for a list of commands.) ").strip().lower()
         if command == "exit":   
+            save_expenses()
             print("Goodbye!")
             break
         elif command == "help":
@@ -119,9 +155,9 @@ def main():
             show_categories()
         elif command == "add category":
             add_categories()
-        elif command == "add expense":
+        elif command == "add expense" or command == "add expenses":
             add_expense()
-        elif command == "view expenses":
+        elif command == "view expenses" or command == "view expense" or command == "show expenses":
             show_expenses()
         elif command == "remove category":
             remove_categories()
