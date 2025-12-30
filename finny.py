@@ -84,20 +84,24 @@ def show_expenses():
     return
 
 def load_expenses():
-    '''Displays all expenses in a tabular format'''
-    if not expenses:
-        print("No expenses recorded yet. Use 'add expense' to add new expenses.")
-        return
-    print("\nYour Expenses:")
-    print(f"{'Date':<12} {'Name':<12} {'Category':<12} {'Amount':>10}")
-    total = 0
-    for expense in expenses:
-        print(f"{expense['date']:<12} {expense['name']:<12} {expense['category']:<12} ₹{expense['amount']:>10.2f}")
-        total += expense['amount']
-    print("-" * 62)
-    print(f"\nTotal Expenses: ₹{total:>.2f}")
-    
-    return
+    """Load expenses from a CSV file if it exists"""
+    try:
+        with open ("expenses.csv", "r") as file:
+            reader=csv.reader(file)
+            next (reader) # to skip header roww
+            for row in reader:
+                expense = {
+                    "date": row[0],
+                    "name": row[1],
+                    "category": row[2],
+                    "amount": float(row[3])
+                }
+                expenses.append(expense)
+        print(f"Loaded {len(expenses)} expenses from file")
+    except FileNotFoundError:
+        print("No saved expenses found :( Try adding some!")
+    except Exception as e:
+        print(f"Error loading expenses: {e}")
 
 def save_expenses():
     """Auto save expenses to a CSV file after user exits"""
@@ -115,7 +119,6 @@ def save_expenses():
         print(f"Saved {len(expenses)} expenses to file")
     except Exception as e:
         print(f"Error saving expenses: {e}")
-
 
 def remove_categories(): 
     """ Allows user to remove existing category"""
@@ -140,6 +143,7 @@ def remove_categories():
         # print(f"Category '{category_to_remove}' not found.")
 
 def main():
+    load_expenses()
     print("\nFinny says Hi!")
     print("\nFinny is here to help you track your expenses and predict your spending patterns so you can manage your finances better.")
     
